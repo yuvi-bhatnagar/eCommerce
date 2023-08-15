@@ -1,4 +1,4 @@
-## E Commerce
+# E Commerce
 initial Product collection should be:
 [  
     {
