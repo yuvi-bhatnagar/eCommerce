@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Store</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .home-content {
+            color: black;
+            text-align: center;
+            padding: 100px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .home-content h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .home-content p {
+            font-size: 18px;
+            margin: 30px 30px;
+            text-align: center;
+        }
+
+        .cta-button {
+            text-decoration: none;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 18px;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        .cta-button:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../partials/header.ejs',{username:username}) %>
+    <div class="home-content">
+        <h2>Welcome to Your E-Commerce Store</h2>
+        <p>Discover amazing products at great prices! From the latest fashion trends to innovative electronics,
+            we have something for everyone. Explore our wide selection of high-quality items and enjoy a seamless
+            shopping experience. With our secure payment options and fast shipping, you can shop with confidence.
+            Join us today and elevate your online shopping journey.</p>
+        <a class="cta-button" href="#">Shop now</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Log In</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        form {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 95%;
+            display: block;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            margin-top: 10px;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .signup-link label {
+            display: inline-block;
+        }
+        .signup-link a {
+            text-decoration: none;
+            color: #007bff;
+            padding: 5px 10px;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        .signup-link a:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="/login" method="POST">
+        <h1>Log In</h1>
+        <label for="name">Username</label>
+        <input required type="text" name="username" id="name" placeholder="Username" />
+        <label for="password">Password</label>
+        <input required type="password" name="password" id="password" placeholder="Password" />
+        <button type="submit">Login</button>
+        <% if(error){ %>
+            <p style="color: red;">
+                <%= error %>
+            </p>
+        <% } %>
+        <div class="signup-link">
+            <label >Didn't have account? </label><a href="/signup">Sign Up</a>
+        </div>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,2 @@
+// apikey=960bed8082d65422e2d7eb9f22006140,
+// createSecretKey=94b83a0b3cb2ee455ab3c6022e845816
