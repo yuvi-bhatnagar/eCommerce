@@ -111,7 +111,19 @@ app.get("/verifyMail", function (req, res) {
     });
 });
 app.get("/changePass",function(req,res){
-  res.render("changePassword",{error:""});
+  res.render("changePassword",{user:req.session.username,error:""});
+})
+app.get("/forgotPass",function(req,res){
+  res.render("forgotPass");
+});
+app.get("/resetPass",async function(req,res){
+  const token = req.query.token;
+  const user= await User.findOne({verification:token});
+  const username=user.username;
+  res.render("changePassword",{user:username,error:""});
+});
+app.get("/checkMail",function(req,res){
+  res.render("checkMail");
 })
 
 // -----------------POST request ----------------------
@@ -214,6 +226,36 @@ app.post("/admin", upload.single("item"), async function (req, res, next) {
   }
 });
 
+app.post("/changePass", async function (req, res) {
+  const pass=req.body.newPassword;
+  const username=req.query.user;
+  const user=await User.findOne({username});
+  const email=user.email;
+  User.updateOne({username:username},{password:pass})
+  .then(function(){
+    console.log("Pass updated successfully");
+    const htmlContent=`<p>Your password is changed successfully.</p>`;
+    const sub="Password Change";
+    mail.sendHtmlEmail(email,htmlContent,sub);
+    req.session.isLoggedin=false;
+    res.render("login",{error:""});
+  })
+  .catch(function (err) {
+    console.log("error"+err);
+  });
+});
+
+app.post("/forgotPass",async function (req, res) {
+  const email = req.body.email;
+  const user=await User.findOne({ email: email });
+  const token=user.verification;
+  const verificationLink = `http://localhost:8000/resetPass?token=${token}`;
+    const htmlContent = `<p>Click to change password <a href="${verificationLink}">click here!</a></p>`;
+    const emailSubject = "Forgot Password";
+    mail.sendHtmlEmail(email, htmlContent, emailSubject);
+    console.log("Verification email sent");
+    res.redirect("checkMail");
+});
 // ---------------server listeners --------------------
 app.listen(8000, function () {
   console.log("Server is running on port 8000");

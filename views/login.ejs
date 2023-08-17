@@ -63,23 +63,18 @@
             margin-top: 10px;
         }
 
-        .signup-link {
+        .signup-link, .reset-link{
             text-align: center;
             margin-top: 15px;
         }
-        .signup-link label {
+        .signup-link label, .reset-link label {
             display: inline-block;
         }
-        .signup-link a {
+        .signup-link a , .reset-link a{
             text-decoration: none;
             color: #007bff;
             padding: 5px 10px;
             transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-        }
-
-        .signup-link a:hover {
-            background-color: #0056b3;
-            color: #fff;
         }
     </style>
 </head>
@@ -99,6 +94,9 @@
         <% } %>
         <div class="signup-link">
             <label >Didn't have account? </label><a href="/signup">Sign Up</a>
+        </div>
+        <div class="reset-link">
+            <label >Forgot Password? </label><a href="/forgotPass">Reset Password</a>
         </div>
     </form>
 </body>
