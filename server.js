@@ -4,6 +4,8 @@ const fs = require("fs");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const session = require("express-session");
+const mail = require("./utils/sendMail");
+const generateRandomToken =require("./utils/generateToken");
 
 const app = express();
 app.set("view engine", "ejs");
@@ -11,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("uploads"));
 app.use(function (req, res, next) {
-  console.log(req.url,req.method);
+  console.log(req.url, req.method);
   next();
 });
 app.use(
@@ -71,37 +73,46 @@ app.get("/logout", function (request, response) {
   response.redirect("/login");
 });
 app.get("/productJS", function (req, res) {
-  res.sendFile(__dirname+"/public/js/product.js");
+  res.sendFile(__dirname + "/public/js/product.js");
 });
 app.get("/products", function (req, res) {
-  if(req.session.isLoggedin){
-    res.render("products", {username: req.session.username});
-    return ;
+  if (req.session.isLoggedin) {
+    res.render("products", { username: req.session.username });
+    return;
   }
-  res.render("login",{error:""});
+  res.render("login", { error: "" });
+});
+
+app.get("/get-products", async (req, res) => {
+  try {
+    const products = await Product.find().exec();
+
+    res.json({ products });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching products." });
+  }
+});
+
+app.get("/verifyMail", function (req, res) {
+  if(!req.session.isLoggedin){
+    res.render("login",{error:""});
+  }
+  const token = req.query.token;
+  const user = User.updateOne({ verification: token }, { isActive: true })
+    .then(() => {
+      res.render("login", { error: "" });
+    })
+    .catch((error) => {
+      console.error("Error updating user:", error);
+      res.render("login", { error: "Error verifying email." });
+    });
+});
+app.get("/changePass",function(req,res){
+  res.render("changePassword",{error:""});
 })
-
-app.get('/get-products', async (req, res) => {
-
-  try {
-      const products = await Product.find().exec();
-
-      res.json({ products });
-  } catch (error) {
-      console.error('Error fetching products:', error);
-      res.status(500).json({ error: 'An error occurred while fetching products.' });
-  }
-});
-
-app.get('/get-products-count', async (req, res) => {
-  try {
-      const count = await Product.countDocuments().exec();
-      res.json({ count });
-  } catch (error) {
-      console.error('Error fetching product count:', error);
-      res.status(500).json({ error: 'An error occurred while fetching product count.' });
-  }
-});
 
 // -----------------POST request ----------------------
 
@@ -109,18 +120,24 @@ app.post("/login", async function (request, response) {
   if (request.session.isLoggedin) {
     return response.redirect("/");
   }
+
   const username = request.body.username;
   const password = request.body.password;
   try {
     const user = await User.findOne({ username });
     if (!user) {
       return response.render("login", {
-        error: "Username or password is incorrect",
+        error: "Username is incorrect",
+      });
+    }
+    if (!user.isActive) {
+      return response.render("login", {
+        error: "pls verifiy your account",
       });
     }
     if (user.password !== password) {
       return response.render("login", {
-        error: "Username or password is incorrect",
+        error: "password is incorrect",
       });
     }
     request.session.isLoggedin = true;
@@ -134,7 +151,6 @@ app.post("/login", async function (request, response) {
     response.status(500).send("An error occurred during login.");
   }
 });
-
 app.post("/signup", async function (request, response) {
   const username = request.body.username;
   const email = request.body.email;
@@ -151,23 +167,32 @@ app.post("/signup", async function (request, response) {
       error: "Email address is already exist",
     });
   }
+  const verificationToken = generateRandomToken(16);
   const newUser = new User({
     username: username,
     email: email,
     password: password,
-    isActive: true,
+    isActive: false,
     isAdmin: false,
+    verification: verificationToken
   });
 
   try {
     await newUser.save();
+    const verificationLink = `http://localhost:8000/verifyMail?token=${verificationToken}`;
+    const htmlContent = `<p>verify your email: <a href="${verificationLink}">click here to verify!</a></p>`;
+    const emailSubject = "Email Verification";
+    mail.sendHtmlEmail(email, htmlContent, emailSubject);
+    console.log("Verification email sent");
     response.redirect("login");
   } catch (error) {
-    response.redirect("login");
+    response.redirect("signup");
     response.status(500).send("An error occurred while creating the user.");
   }
 });
-app.post("/admin",upload.single("item"), async function (req, res, next) {
+
+
+app.post("/admin", upload.single("item"), async function (req, res, next) {
   try {
     const name = req.body.productName;
     const description = req.body.description;

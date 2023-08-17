@@ -32,53 +32,55 @@ function createProductCard(product) {
 }
 
 function addProducts(products) {
-  let count=5;
-  let n=currentProductIndex;
+  let count = 5;
+  let n = currentProductIndex;
   products.forEach((product) => {
-    if(n<=0 && count>0){
+    if (n <= 0 && count > 0) {
       createProductCard(product);
       count--;
     }
     n--;
   });
 
-  currentProductIndex +=5;
+  currentProductIndex += 5;
   if (currentProductIndex >= totalProductCount) {
     loadMoreBtn.style.display = "none";
   }
 }
 
 loadMoreBtn.addEventListener("click", () => {
-  fetch('/get-products')
+  fetch("/get-products")
     .then((response) => response.json())
     .then((data) => {
       addProducts(data.products);
-      addDetailButtonListeners(data.products)//product detail is accessible there
+      addDetailButtonListeners(data.products); //product detail is accessible there
     })
     .catch((error) => console.error("Error fetching products:", error));
 });
 
 let totalProductCount = 0;
 // to get the total product count
-fetch("/get-products-count")
-  .then((response) => response.json())
-  .then((data) => {
-    totalProductCount = data.count;
+fetch("/get-products")
+.then((response) => response.json())
+.then((data) => {
+  totalProductCount = data.products.length;
 })
-.catch((error) => console.error("Error fetching product count:", error));
+.catch((error) => console.error("Error fetching products:", error));
 
 loadMoreBtn.click();
 
 function addDetailButtonListeners(products) {
   container.addEventListener("click", (event) => {
     if (event.target.classList.contains("detail-button")) {
-        const button = event.target;
-        const productCard = button.closest(".product-card"); // Find the parent product card
-        const index = Array.from(productCard.parentElement.children).indexOf(productCard);
+      const button = event.target;
+      const productCard = button.closest(".product-card"); // Find the parent product card
+      const index = Array.from(productCard.parentElement.children).indexOf(
+        productCard
+      );
 
-        showPopup(products[index]);
+      showPopup(products[index]);
     }
-});
+  });
 }
 
 function showPopup(product) {

@@ -1,2 +1,30 @@
-// apikey=960bed8082d65422e2d7eb9f22006140,
-// createSecretKey=94b83a0b3cb2ee455ab3c6022e845816
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: 'yuvrajbhatnagar36@gmail.com',
+    pass: 'sbihwblobytdltrc',
+  },
+});
+
+// Function to send an HTML email
+function sendHtmlEmail(userEmail, mailContent, emailSubject) {
+  const mailOptions = {
+    from: 'yuvrajbhatnagar36@gmail.com',
+    to: userEmail,
+    subject: emailSubject,
+    html: mailContent,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+}
+
+module.exports = {
+  sendHtmlEmail,
+};
