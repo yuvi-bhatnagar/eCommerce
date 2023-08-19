@@ -5,7 +5,7 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const session = require("express-session");
 const mail = require("./utils/sendMail");
-const generateRandomToken =require("./utils/generateToken");
+const generateRandomToken = require("./utils/generateToken");
 
 const app = express();
 app.set("view engine", "ejs");
@@ -30,6 +30,8 @@ const db = require("./models/db");
 db.init();
 const User = require("./models/user");
 const Product = require("./models/products");
+const Cart = require("./models/carts");
+const Products = require("./models/products");
 
 // ---------GET request --------------------------------
 
@@ -75,9 +77,19 @@ app.get("/logout", function (request, response) {
 app.get("/productJS", function (req, res) {
   res.sendFile(__dirname + "/public/js/product.js");
 });
+app.get("/cartJS", function (req, res) {
+  res.sendFile(__dirname + "/public/js/cart.js");
+});
 app.get("/products", function (req, res) {
   if (req.session.isLoggedin) {
     res.render("products", { username: req.session.username });
+    return;
+  }
+  res.render("login", { error: "" });
+});
+app.get("/cart", function (req, res) {
+  if (req.session.isLoggedin) {
+    res.render("cart", { username: req.session.username });
     return;
   }
   res.render("login", { error: "" });
@@ -96,9 +108,21 @@ app.get("/get-products", async (req, res) => {
   }
 });
 
+app.get("/cart-products", async (req, res) => {
+  try {
+    const products = await Cart.find({ user: req.session.username });
+    res.json({ products });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching products." });
+  }
+});
+
 app.get("/verifyMail", function (req, res) {
-  if(!req.session.isLoggedin){
-    res.render("login",{error:""});
+  if (!req.session.isLoggedin) {
+    res.render("login", { error: "" });
   }
   const token = req.query.token;
   const user = User.updateOne({ verification: token }, { isActive: true })
@@ -110,21 +134,21 @@ app.get("/verifyMail", function (req, res) {
       res.render("login", { error: "Error verifying email." });
     });
 });
-app.get("/changePass",function(req,res){
-  res.render("changePassword",{user:req.session.username,error:""});
-})
-app.get("/forgotPass",function(req,res){
+app.get("/changePass", function (req, res) {
+  res.render("changePassword", { user: req.session.username, error: "" });
+});
+app.get("/forgotPass", function (req, res) {
   res.render("forgotPass");
 });
-app.get("/resetPass",async function(req,res){
+app.get("/resetPass", async function (req, res) {
   const token = req.query.token;
-  const user= await User.findOne({verification:token});
-  const username=user.username;
-  res.render("changePassword",{user:username,error:""});
+  const user = await User.findOne({ verification: token });
+  const username = user.username;
+  res.render("changePassword", { user: username, error: "" });
 });
-app.get("/checkMail",function(req,res){
+app.get("/checkMail", function (req, res) {
   res.render("checkMail");
-})
+});
 
 // -----------------POST request ----------------------
 
@@ -186,7 +210,7 @@ app.post("/signup", async function (request, response) {
     password: password,
     isActive: false,
     isAdmin: false,
-    verification: verificationToken
+    verification: verificationToken,
   });
 
   try {
@@ -202,7 +226,6 @@ app.post("/signup", async function (request, response) {
     response.status(500).send("An error occurred while creating the user.");
   }
 });
-
 
 app.post("/admin", upload.single("item"), async function (req, res, next) {
   try {
@@ -227,35 +250,114 @@ app.post("/admin", upload.single("item"), async function (req, res, next) {
 });
 
 app.post("/changePass", async function (req, res) {
-  const pass=req.body.newPassword;
-  const username=req.query.user;
-  const user=await User.findOne({username});
-  const email=user.email;
-  User.updateOne({username:username},{password:pass})
-  .then(function(){
-    console.log("Pass updated successfully");
-    const htmlContent=`<p>Your password is changed successfully.</p>`;
-    const sub="Password Change";
-    mail.sendHtmlEmail(email,htmlContent,sub);
-    req.session.isLoggedin=false;
-    res.render("login",{error:""});
-  })
-  .catch(function (err) {
-    console.log("error"+err);
-  });
+  const pass = req.body.newPassword;
+  const username = req.query.user;
+  const user = await User.findOne({ username });
+  const email = user.email;
+  User.updateOne({ username: username }, { password: pass })
+    .then(function () {
+      console.log("Pass updated successfully");
+      const htmlContent = `<p>Your password is changed successfully.</p>`;
+      const sub = "Password Change";
+      mail.sendHtmlEmail(email, htmlContent, sub);
+      req.session.isLoggedin = false;
+      res.render("login", { error: "" });
+    })
+    .catch(function (err) {
+      console.log("error" + err);
+    });
 });
 
-app.post("/forgotPass",async function (req, res) {
+app.post("/forgotPass", async function (req, res) {
   const email = req.body.email;
-  const user=await User.findOne({ email: email });
-  const token=user.verification;
+  const user = await User.findOne({ email: email });
+  const token = user.verification;
   const verificationLink = `http://localhost:8000/resetPass?token=${token}`;
-    const htmlContent = `<p>Click to change password <a href="${verificationLink}">click here!</a></p>`;
-    const emailSubject = "Forgot Password";
-    mail.sendHtmlEmail(email, htmlContent, emailSubject);
-    console.log("Verification email sent");
-    res.redirect("checkMail");
+  const htmlContent = `<p>Click to change password <a href="${verificationLink}">click here!</a></p>`;
+  const emailSubject = "Forgot Password";
+  mail.sendHtmlEmail(email, htmlContent, emailSubject);
+  console.log("Verification email sent");
+  res.redirect("checkMail");
 });
+
+app.post("/cart", async function (req, res) {
+  const product = req.body;
+  const user = req.session.username;
+  const presentProduct = await Cart.findOne({
+    user: user,
+    productName: product.productName,
+  });
+  if (presentProduct) {
+    await Cart.updateOne(
+      { user: user, productName: product.productName },
+      { quantity: presentProduct.quantity + 1}
+    );
+    return;
+  } else {
+    const newInCart = new Cart({
+      user: user,
+      productName: product.productName,
+      productPrice: product.productPrice,
+      quantity: 1,
+      productImage: product.productImage,
+      productDesc: product.productDesc,
+    });
+    await newInCart.save();
+    return;
+  }
+});
+
+app.post("/deleteFromCart", async function (req, res) {
+  try {
+    const user = req.body.user;
+    const product = req.body.product;
+    await Cart.deleteOne({ user: user, productName: product });
+    res.json({ redirect: "/cart" });
+  } catch (error) {
+    console.error("Error deleting from cart:", error);
+    res.status(500).send("Error deleting from cart");
+  }
+});
+
+app.post('/increaseQuantity',async function (req, res) {
+  try{
+    const user = req.body.user;
+    const product = req.body.product;
+    const curQuantity = req.body.quantity;
+    const totalQuantity= await Products.findOne({productName:product});
+    if(curQuantity>=totalQuantity.quantity){
+      return;
+    }
+    else{
+      await Cart.updateOne({user:user,productName:product},{quantity:curQuantity+1});
+      res.json({redirect:"/cart"});
+    }
+  }
+  catch(error) {
+    console.error("Error in increasing quantity:", error);
+    res.status(500).send("Error increasing quantity");
+  }
+});
+
+app.post('/decreaseQuantity',async function (req, res) {
+  try{
+    const user = req.body.user;
+    const product = req.body.product;
+    const curQuantity = req.body.quantity;
+    if(curQuantity==1){
+      return;
+    }
+    else{
+      await Cart.updateOne({user:user,productName:product},{quantity:curQuantity-1});
+      res.json({redirect:"/cart"});
+    }
+  }
+  catch(error) {
+    console.error("Error in increasing quantity:", error);
+    res.status(500).send("Error increasing quantity");
+  }
+});
+
 // ---------------server listeners --------------------
 app.listen(8000, function () {
   console.log("Server is running on port 8000");

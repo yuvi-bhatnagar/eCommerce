@@ -19,13 +19,22 @@ function createProductCard(product) {
   const name = document.createElement("h2");
   name.classList.add("product-name");
   name.textContent = product.productName;
+  const price = document.createElement("h2");
+  price.classList.add("product-price");
+  price.textContent = "Price : Rs."+product.productPrice;
 
   const detailButton = document.createElement("button");
   detailButton.classList.add("detail-button");
   detailButton.textContent = "Details";
 
+  const AddtoCart = document.createElement("button");
+  AddtoCart.classList.add("cart-button");
+  AddtoCart.textContent = "Add to Cart";
+
   card.appendChild(img);
   card.appendChild(name);
+  card.appendChild(price);
+  card.appendChild(AddtoCart);
   card.appendChild(detailButton);
 
   container.appendChild(card);
@@ -54,6 +63,7 @@ loadMoreBtn.addEventListener("click", () => {
     .then((data) => {
       addProducts(data.products);
       addDetailButtonListeners(data.products); //product detail is accessible there
+      addToCartButtonListeners(data.products); //product detail is accessible there
     })
     .catch((error) => console.error("Error fetching products:", error));
 });
@@ -77,11 +87,34 @@ function addDetailButtonListeners(products) {
       const index = Array.from(productCard.parentElement.children).indexOf(
         productCard
       );
-
       showPopup(products[index]);
     }
   });
 }
+
+let addToCartClickHandler; 
+
+function addToCartButtonListeners(products) {
+  if (addToCartClickHandler) {
+    container.removeEventListener("click", addToCartClickHandler);
+  }
+
+  addToCartClickHandler = (event) => {
+    if (event.target.classList.contains("cart-button")) {
+      const button = event.target;
+      const productCard = button.closest(".product-card"); // Find the parent product card
+      const index = Array.from(productCard.parentElement.children).indexOf(productCard);
+      fetch("/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(products[index]),
+      });
+    }
+  };
+
+  container.addEventListener("click", addToCartClickHandler);
+}
+
 
 function showPopup(product) {
   document.getElementById("popupProductName").textContent = product.productName;

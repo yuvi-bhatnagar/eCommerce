@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>Products</title>
+    <title>Cart</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,6 +18,15 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin: 40px auto 10px 12%;
+        }
+
+        h1 i {
+            margin-left: 0.5rem;
         }
 
         .product-card {
@@ -37,15 +47,27 @@
 
         .product-img {
             max-width: 100%;
-            height: 70%;
+            height: 60%;
         }
 
         .product-name {
             margin: 10px 0;
             font-weight: bold;
         }
+
         .product-price {
             margin: 10px 0;
+            font-weight: normal;
+            font-size: 18px;
+        }
+
+        .product-quantity {
+            margin: 10px 0;
+            font-weight: normal;
+            font-size: 18px;
+        }
+        .product-quantity-lbl {
+            margin: 10px 4px 10px 25%;
             font-weight: normal;
             font-size: 18px;
         }
@@ -55,49 +77,35 @@
             background-color: #333;
             color: white;
             border: none;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        .cart-button{
+
+        .delete-button {
             width: 40%;
-            background-color: #e1e1e1;
+            background-color: #e4e4e4;
             color: #333;
             border: none;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        .cart-button:active{
+
+        .delete-button:active {
             background-color: #302f2f;
             color: #e4e4e4;
         }
-        .detail-button:active{
+
+        .detail-button:active {
             background-color: #e4e4e4;
             color: #302f2f;
         }
 
-        #loadMoreBtn {
-            display: block;
-            margin: 20px auto 40px auto;
-            padding: 12px 24px;
-            font-size: 16px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: fit-content;
-        }
-
-        #loadMoreBtn:hover {
-            background-color: #555;
-        }
         .popup {
             display: none;
             position: fixed;
@@ -108,7 +116,7 @@
             background-color: rgba(0, 0, 0, 0.7);
             z-index: 9999;
         }
-        
+
         .popup-content {
             position: absolute;
             top: 50%;
@@ -122,16 +130,17 @@
             max-height: 90%;
             overflow: auto;
         }
+
         .popup-content img {
-            max-width: 80%; 
-            height: 80%; 
+            max-width: 80%;
+            height: 80%;
             margin-left: 10%;
         }
-        
+
         .popup-product-desc {
             margin-top: 15px;
         }
-        
+
         .close-btn {
             position: absolute;
             top: 10px;
@@ -139,24 +148,69 @@
             font-size: 24px;
             cursor: pointer;
         }
+
+        .empty-cart {
+            font-size: 48px;
+            font-weight: bold;
+            margin-left: 35%;
+            margin-top: 10%;
+
+        }
+
+        .shop-btn {
+            display: inline-block;
+            margin-left: 45%;
+            margin-bottom: 3rem;
+            text-decoration: none;
+            background-color: #c6c6c6;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 18px;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        .shop-btn:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .quantity-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-button-plus,.quantity-button-minus {
+            padding: 5px 10px;
+            margin-right: 10px;
+            font-size: 22px;
+        }
+
+        .product-quantity {
+            margin-right: 10px;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
 </head>
+
 <body>
     <%- include('../partials/header.ejs',{username:username}) %>
-    <div class="container" id="productContainer">
-        <!-- Product cards will be added here using JavaScript -->
-    </div>
-    <!-- this pop up code shows when someone click on details button -->
-    <div class="popup" id="popup">
-        <div class="popup-content">
-            <span class="close-btn" id="closeBtn">&times;</span>
-            <h2 id="popupProductName"></h2>
-            <p id="popupProductPrice"></p>
-            <img src="" alt="" id="popupProductImage">
-            <p id="popupProductDesc"></p>
+        <h1>Cart<i class="fa-solid fa-cart-shopping"></i></h1>
+        <div class="container" id="productContainer">
+            <!-- Product cards will be added here using JavaScript -->
         </div>
-    </div>
-    <button id="loadMoreBtn">Load More</button>
-    <script src="/productJS"></script>
+        <div class="popup" id="popup">
+            <div class="popup-content">
+                <span class="close-btn" id="closeBtn">&times;</span>
+                <h2 id="popupProductName"></h2>
+                <p id="popupProductPrice"></p>
+                <img src="" alt="" id="popupProductImage">
+                <p id="popupProductDesc"></p>
+            </div>
+        </div>
+        <a href="/products" class="shop-btn">Shop now</a>
+        <script src="/cartJS"></script>
 </body>
+
 </html>
