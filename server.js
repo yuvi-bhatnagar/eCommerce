@@ -13,7 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("uploads"));
 app.use(function (req, res, next) {
-  console.log(req.url, req.method);
   next();
 });
 app.use(
@@ -74,12 +73,18 @@ app.get("/logout", function (request, response) {
   }
   response.redirect("/login");
 });
+
+// -----Scripts --------------------------------
 app.get("/productJS", function (req, res) {
   res.sendFile(__dirname + "/public/js/product.js");
 });
 app.get("/cartJS", function (req, res) {
   res.sendFile(__dirname + "/public/js/cart.js");
 });
+app.get("/adminJS", function (req, res) {
+  res.sendFile(__dirname + "/public/js/admin.js");
+});
+
 app.get("/products", function (req, res) {
   if (req.session.isLoggedin) {
     res.render("products", { username: req.session.username });
@@ -90,6 +95,13 @@ app.get("/products", function (req, res) {
 app.get("/cart", function (req, res) {
   if (req.session.isLoggedin) {
     res.render("cart", { username: req.session.username });
+    return;
+  }
+  res.render("login", { error: "" });
+});
+app.get("/adminProducts", function (req, res) {
+  if (req.session.isLoggedin) {
+    res.render("adminProducts", { username: req.session.username });
     return;
   }
   res.render("login", { error: "" });
@@ -247,6 +259,33 @@ app.post("/admin", upload.single("item"), async function (req, res, next) {
     res.redirect("/");
     res.status(500).send("An error occurred while adding the product");
   }
+});
+
+app.post('/adminUpdate', async function (req, res) {
+  const curProduct = req.query.curProduct;
+  const action = req.body.action;
+  if (action === "update") {
+    const updateData = {};
+    if (req.body.name !== "") {
+      updateData.productName = req.body.name;
+    }
+    if (req.body.description !== "") {
+      updateData.productDesc = req.body.description;
+    }
+    if (req.body.price !== "") {
+      updateData.productPrice = req.body.price;
+    }
+    if (req.body.quantity !== "") {
+      updateData.quantity = req.body.quantity;
+    }
+    if (Object.keys(updateData).length > 0) {
+      await Products.updateOne({ productName: curProduct }, { $set: updateData });
+    }
+  }
+  else{
+    await Products.deleteOne({productName: curProduct});
+  }
+  res.redirect('adminProducts');
 });
 
 app.post("/changePass", async function (req, res) {

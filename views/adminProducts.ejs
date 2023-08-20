@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin: 40px auto 10px 12%;
+        }
+
+        h1 i {
+            margin-left: 0.5rem;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: calc(30% - 20px);
+            margin: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s;
+            height: 30rem;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-img {
+            max-width: 70%;
+            height: 45%;
+        }
+        .product-card form{
+            width: 100%;
+        }
+        .product-card div{
+            width: 100%;
+            text-align: left;
+            margin: 10px auto;
+        }
+        .input-label{
+            display: inline-block;
+            margin-left: 1rem;
+            width: 30%;
+        }
+        .input-area{
+            display: inline-block;
+            width:60%;
+            height: 1.5rem;
+        }
+        .product-card form textarea{
+            height: 3.5rem;
+        }
+
+        .delete-button {
+            width: 40%;
+            background-color: #333;
+            color: white;
+            border: none;
+            margin-top: 1rem;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .update-button {
+            width: 40%;
+            background-color: #e4e4e4;
+            color: #333;
+            border: none;
+            margin-top: 1rem;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .update-button:active {
+            background-color: #302f2f;
+            color: #e4e4e4;
+        }
+
+        .delete-button:active {
+            background-color: #e4e4e4;
+            color: #302f2f;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+</head>
+
+<body>
+    <%- include('../partials/adminHeader.ejs',{username:username}) %>
+        <h1>Admin<i class="fa-solid fa-user-check"></i></h1>
+        <div class="container" id="productContainer">
+            <!-- Product cards will be added here using JavaScript -->
+        </div>
+        <script src="/adminJS"></script>
+</body>
+
+</html>
