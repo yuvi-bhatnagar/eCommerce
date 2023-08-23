@@ -30,7 +30,17 @@ db.init();
 const User = require("./models/user");
 const Product = require("./models/products");
 const Cart = require("./models/carts");
-const Products = require("./models/products");
+const productData = require("./models/productData");
+
+// Initial Products
+try {
+  if(Product.find().length === 0){
+    Product.insertMany(productData);
+  }
+  
+} catch (error) {
+  console.log(error);
+}
 
 // ---------GET request --------------------------------
 
