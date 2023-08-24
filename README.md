@@ -18,3 +18,9 @@
 
 # Cart
 ![image](https://github.com/yuvi-bhatnagar/eCommerce/assets/108606754/01e819df-ee8d-4be9-abf4-d6d86d12a3fb)
+
+# Admin Add Products
+![image](https://github.com/yuvi-bhatnagar/eCommerce/assets/108606754/aced3fc6-5c84-41d3-a5f6-8b1d9ed80755)
+
+# Admin update Products
+![image](https://github.com/yuvi-bhatnagar/eCommerce/assets/108606754/4c60c344-9856-473f-8ddf-69d3e142f3de)
