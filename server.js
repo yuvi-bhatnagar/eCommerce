@@ -293,11 +293,11 @@ app.post('/adminUpdate', async function (req, res) {
     }
   }
   else{
-    const image= await Products.findOne({ productName: curProduct});
+    const image= await Product.findOne({ productName: curProduct});
     fs.unlink(__dirname+'/uploads/'+image.productImage,(err => {
       if (err) console.log(err);
     }));
-    await Products.deleteOne({productName: curProduct});
+    await Product.deleteOne({productName: curProduct});
   }
   res.redirect('adminProducts');
 });
