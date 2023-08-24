@@ -289,7 +289,7 @@ app.post('/adminUpdate', async function (req, res) {
       updateData.quantity = req.body.quantity;
     }
     if (Object.keys(updateData).length > 0) {
-      await Products.updateOne({ productName: curProduct }, { $set: updateData });
+      await Product.updateOne({ productName: curProduct }, { $set: updateData });
     }
   }
   else{
@@ -377,7 +377,7 @@ app.post('/increaseQuantity',async function (req, res) {
     const user = req.body.user;
     const product = req.body.product;
     const curQuantity = req.body.quantity;
-    const totalQuantity= await Products.findOne({productName:product});
+    const totalQuantity= await Product.findOne({productName:product});
     if(curQuantity>=totalQuantity.quantity){
       return;
     }
